@@ -1,1 +1,11 @@
 # ansible
+这是ansible 部署openstack，实现了部署controller单节点、computer单节点功能
+目前仅适用于OpenEuler-sp3操作系统
+
+
+功能介绍
+pre_work：主要完成ansible部署节点前的一些准备工作，主要包括待部署节点的防火墙检查和关闭，selinux的检查和临时关闭，ansible控制节点和待部署节点之间的免密登录，以及离线源上传、解压、在线源备份、离线源配置等基础功能。
+
+controller：完成对单节点controller节点部署
+
+computer：完成对单节点computer节点部署
