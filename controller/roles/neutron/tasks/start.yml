@@ -1,0 +1,59 @@
+# 1. restart openstack-nova-api service
+- name: restart openstack-nova-api service
+  systemd:
+    name: openstack-nova-api.service
+    state: restarted
+
+# 2. 设置自启动网络服务
+- name: enable neutron-server service
+  systemd:
+    name: neutron-server
+    enabled: yes
+  
+- name: enable neutron-linuxbridge-agent service
+  systemd:
+    name: neutron-linuxbridge-agent
+    enabled: yes
+
+- name: enable neutron-dhcp-agent service
+  systemd:
+    name: neutron-dhcp-agent.service
+    enabled: yes
+
+- name: enable neutron-metadata-agent service
+  systemd:
+    name: neutron-metadata-agent.service
+    enabled: yes
+
+- name: enable neutron-l3-agent.service
+  systemd:
+    name: neutron-l3-agent.service
+    enabled: yes
+
+# 3.restart neutron service including neutron-server,neutron-linuxbeidge-agent,neutron-dhcp-agent,neutron-matadata-agent
+- name: start neutron-server service
+  systemd:
+    name: neutron-server
+    state: restarted
+
+- name: start neutron-linuxbridge-agent service
+  systemd:
+    name: neutron-linuxbridge-agent
+    state: restarted
+
+- name: start neutron-dhcp-agent service
+  systemd:
+    name: neutron-dhcp-agent.service
+    state: restarted
+
+- name: start neutron-metadata-agent service
+  systemd:
+    name: neutron-metadata-agent.service
+    state: restarted
+
+- name: start neutron-l3-agent.service
+  systemd:
+    name: neutron-l3-agent.service
+    state: restarted
+  
+

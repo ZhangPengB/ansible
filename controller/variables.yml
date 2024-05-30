@@ -1,0 +1,57 @@
+# maraidb
+bind_address: "{{ ansible_default_ipv4.address }}"
+
+# rabbitmq
+RABBIT_PASS: 123456
+
+
+# keystone
+MYSQL_DBPASS: 123456
+KEYSTONE_DBPASS: 123456
+DEST_IP: "{{ ansible_default_ipv4.address }}"
+ADMIN_PASS: 123456
+OS_AUTH_HOST: "{{ ansible_default_ipv4.address }}"
+myuser_pass: 123456
+s
+
+# glance
+#MYSQL_DBPASS: 123456
+GLANCE_DBPASS: 123456
+#DEST_IP: "{{ ansible_default_ipv4.address }}"
+GLANCE_PASS: 123456   #glance 用户的密码
+
+# placement
+# MYSQL_DBPASS: 123456
+PLACEMENT_DBPASS: 123456
+# DEST_IP: 192.168.10.113
+PLACEMENT_PASS: 123456   # placement user 密码
+
+
+# nova
+# MYSQL_DBPASS: 123456
+NOVA_DBPASS: 123456
+NOVA_PASS: 123456
+# DEST_IP: 192.168.10.113
+# RABBIT_PASS: 123456
+NEUTRON_PASS: 123456
+# PLACEMENT_PASS: 123456
+
+
+# neutron
+NEUTRON_DBPASS: 123456
+# MYSQL_DBPASS: 123456
+# DEST_IP: 192.168.10.113
+# NEUTRON_PASS: 123456
+# NOVA_PASS: 123456
+# RABBIT_PASS: 123456
+PROVIDER_INTERFACE_NAME: ens3   #linuxbridge_agent.ini.j2  物理网络接口
+OVERLAY_INTERFACE_IP_ADDRESS: "{{ ansible_default_ipv4.address }}"
+
+# cinder
+CINDER_DBPASS: 123456
+# MYSQL_DBPASS: 123456
+# DEST_IP: 192.168.10.113
+# NEUTRON_PASS: 123456
+# NOVA_PASS: 123456
+# RABBIT_PASS: 123456
+# CINDER_PASS: 123456

@@ -1,0 +1,105 @@
+# 1. 创建neutron API服务资源
+- name: check domain default if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack domain show default
+  register: domain_default_check
+  ignore_errors: true
+
+- name: check user neutron if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show neutron
+  register: user_neutron_check
+  ignore_errors: true
+
+- name: cretae user neutron within default domain and password
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user create --domain default --password "{{ NEUTRON_PASS }}" neutron
+  when: domain_default_check.rc == 0 and user_neutron_check.rc != 0
+
+- name: check project service if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack project show service
+  register: project_service_check
+  ignore_errors: true
+
+- name: check user neutron if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show neutron
+  register: user_neutron_check
+  ignore_errors: true
+
+- name: check role admin if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role show admin
+  register: role_admin_check
+  ignore_errors: true
+
+- name: add role admin to service project and neutron user
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role add --project service --user neutron admin
+  when: project_service_check.rc ==0 and user_neutron_check.rc==0 and role_admin_check.rc == 0
+
+- name: check service (named:neutron & type:network) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service list | grep neutron | grep network
+  register: service_network_check
+  ignore_errors: true
+
+- name: create service (named:neutron & type:network)
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service create --name neutron --description "OpenStack Networking" network
+  when: service_network_check.rc != 0
+  
+
+# 2.创建neutron API　endpoint
+# public 
+- name: check endpoint (http://"{{ DEST_IP }}":9696,public,RegionOne,network) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":9696 | grep public | grep RegionOne | grep network
+  register: endpoint_network_public_check
+  ignore_errors: true
+
+- name: create endpoint network public 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne network public http://"{{ DEST_IP }}":9696
+  when: endpoint_network_public_check.rc !=0
+
+# internal 
+- name: check endpoint (http://"{{ DEST_IP }}":9696,internal,RegionOne,network) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":9696 | grep internal | grep RegionOne | grep network
+  register: endpoint_network_internal_check
+  ignore_errors: true
+
+- name: create endpoint network internal 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne network internal http://"{{ DEST_IP }}":9696
+  when: endpoint_network_internal_check.rc !=0
+
+# admin 
+- name: check endpoint (http://"{{ DEST_IP }}":9696,admin,RegionOne,network) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":9696 | grep admin | grep RegionOne | grep network
+  register: endpoint_network_admin_check
+  ignore_errors: true
+
+- name: create endpoint network admin 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne network admin http://"{{ DEST_IP }}":9696
+  when: endpoint_network_admin_check.rc !=0
+

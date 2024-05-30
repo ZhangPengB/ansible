@@ -1,0 +1,41 @@
+- name: render neutron config file by tamplates
+  template:
+    src: ../templates/neutron.conf.j2
+    dest: /etc/neutron/neutron.conf
+
+- name: render ml2 config file by tamplates
+  template:
+    src: ../templates/ml2_conf.ini.j2
+    dest: /etc/neutron/plugins/ml2/ml2_conf.ini
+
+- name: check src file if exist
+  stat:
+    path: /etc/neutron/plugins/ml2/ml2_conf.ini
+  register: src_file_check
+  ignore_errors: true
+
+- name: create soft link
+  command: ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
+  args:
+    creates: /etc/neutron/plugin.ini
+  when: src_file_check.stat.exists
+
+- name: render linuxbridge-agent config file by tamplates
+  template:
+    src: ../templates/linuxbridge_agent.ini.j2
+    dest: /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+
+- name: render l3 agent config file
+  template:
+    src: ../templates/l3_agent.ini.j2
+    dest: /etc/neutron/l3_agent.ini
+
+- name: render dhcp_agent config file
+  template:
+    src: ../templates/dhcp_agent.ini.j2
+    dest: /etc/neutron/dhcp_agent.ini
+
+- name: render metadata_agent config file
+  template:
+    src: ../templates/metadata_agent.ini.j2
+    dest: /etc/neutron/metadata_agent.ini

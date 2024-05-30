@@ -1,0 +1,5 @@
+- name: render nova config file
+  template:
+    src: ../templates/nova.conf.j2
+    dest: /etc/nova/nova.conf
+      

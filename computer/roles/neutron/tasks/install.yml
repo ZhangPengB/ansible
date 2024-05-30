@@ -1,0 +1,16 @@
+# 计算节点网络部分：安装openstack-neutron-linuxbridge ebtables ipset
+- name: install neutron including (openstack-neutron-linuxbridge,ebtables and ipset)
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - openstack-neutron-linuxbridge
+    - ebtables
+    - ipset
+  register: install_result
+  until: install_result is success
+  retries: 5
+  delay: 2
+
+- name: display install res info
+  debug:
+    msg: "install res info: {{ install_result }}"

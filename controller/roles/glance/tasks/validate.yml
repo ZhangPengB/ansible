@@ -1,0 +1,14 @@
+- name: validate by download image 
+  shell: |
+    source /root/admin-openrc.sh
+    wget http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
+
+- name: push image to service
+  shell: |
+    source /root/admin-openrc.sh
+    openstack image create --disk-format qcow2 --container-format bare --file cirros-0.4.0-x86_64-disk.img --public cirros
+
+- name: list image
+  shell: |
+    source /root/admin-openrc.sh
+    openstack image list

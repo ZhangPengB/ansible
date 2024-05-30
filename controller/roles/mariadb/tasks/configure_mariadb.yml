@@ -1,0 +1,5 @@
+- name: Copy MariaDB configuration file
+  template:
+    src: ../templates/my.cnf.j2
+    dest: /etc/my.cnf.d/openstack.cnf
+  # when: file_info.stat.exists

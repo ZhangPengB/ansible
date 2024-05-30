@@ -1,0 +1,14 @@
+- name: Install glance packages including openstack-glance only
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - openstack-glance 
+  register: install_result
+  until: install_result is success
+  retries: 5
+  delay: 2
+  
+- name: Display installation information
+  debug: 
+    msg: "Package installed: {{ install_result }}"

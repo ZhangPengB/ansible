@@ -1,0 +1,39 @@
+- name: enable nova-api service
+  systemd:
+    name: openstack-nova-api.service
+    enabled: yes
+
+- name: enable nova-scheduler service
+  systemd:
+    name: openstack-nova-scheduler.service
+    enabled: yes
+  
+- name: enable nova-conductor service
+  systemd:
+    name: openstack-nova-conductor.service
+    enabled: yes
+
+- name: enable nova-novncproxy service
+  systemd:
+    name: openstack-nova-novncproxy.service
+    enabled: yes
+
+- name: start nova-api service
+  systemd:
+    name: openstack-nova-api.service
+    state: started
+
+- name: start nova-scheduler service
+  systemd:
+    name: openstack-nova-scheduler.service
+    state: started
+  
+- name: start nova-conductor service
+  systemd:
+    name: openstack-nova-conductor.service
+    state: started
+
+- name: start nova-novncproxy service
+  systemd:
+    name: openstack-nova-novncproxy.service
+    state: started

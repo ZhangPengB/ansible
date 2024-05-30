@@ -1,0 +1,21 @@
+# enable cinder service
+- name: enable openstack-cinder-api service
+  systemd:
+    name: openstack-cinder-api
+    enabled: yes
+  
+- name: enable openstack-cinder-scheduler service
+  systemd:
+    name: openstack-cinder-scheduler
+    enabled: yes
+
+# start cinder service
+- name: start openstack-cinder-api service
+  systemd:
+    name: openstack-cinder-api
+    state: started
+  
+- name: start openstack-cinder-scheduler
+  systemd:
+    name: openstack-cinder-scheduler
+    state: started

@@ -1,0 +1,60 @@
+---
+- name: pre work for ansible config dest node
+  hosts: ssh_without_pass   # 填写目标主机组或者目标主机
+  become: true
+  gather_facts: true
+  tasks:
+    - name: check if myyum.gz is already exists
+      stat:
+        path: /home/myyum.gz
+      register: myyum_info
+      ignore_errors: true
+
+
+    - name: upload gz package to home in dest node
+      copy: 
+        src: ../resources/myyum.gz
+        dest: /home/myyum.gz
+        owner: root
+      when: not myyum_info.stat.exists
+    
+    - name: check /home/myyum dir if exists
+      stat:
+        path: /home/myyum
+      register: home_myyum_dir
+      ignore_errors: true
+
+
+    - name: Change directory to /home and unzip myyum.gz
+      shell: |
+        cd /home
+        tar -xvf myyum.gz
+        mv sp3 myyum   
+      when: not home_myyum_dir.stat.exists
+
+    - name: check if openEuler.repo file exists
+      stat: 
+        path: /etc/yum.repos.d/openEuler.repo
+      register: file_info
+      ignore_errors: true
+
+    - name: move openEuler.repo to /root
+      command: mv /etc/yum.repos.d/openEuler.repo /root
+      when: file_info.stat.exists
+    
+    - name: check myyum.repo if already exists
+      stat:
+        path: /etc/yum.repos.d/myyum.repo
+      register: myyum_repo_file
+      ignore_errors: true
+
+    - name: rebuild myyum repo
+      copy:
+        src: /root/ansible-example/pre_work/resources/myyum.repo
+        dest: /etc/yum.repos.d/myyum.repo
+        owner: root
+      when: not myyum_repo_file.stat.exists
+      
+    - name: clean yum all
+      command: yum clean all
+    

@@ -1,0 +1,30 @@
+- name: login mariadb and create neutron database
+  mysql_db:
+    login_user: root
+    login_password: "{{ MYSQL_DBPASS }}"
+    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
+    name: neutron
+    state: present
+
+# start grant database for neutron
+- name: Grant privileges to neutron database user (localhost)
+  mysql_user:
+    # login_user: root
+    # login_password: 
+    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
+    name: neutron
+    password: "{{ NEUTRON_DBPASS }}"
+    host: localhost
+    priv: "neutron.*:ALL"
+    state: present
+
+- name: Grant privileges to neutron database user (%)
+  mysql_user:
+    # login_user: root
+    # login_password: "{{ mysql_root_password }}"
+    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
+    name: neutron
+    password: "{{ NEUTRON_DBPASS }}"
+    host: "%"
+    priv: "neutron.*:ALL"
+    state: present

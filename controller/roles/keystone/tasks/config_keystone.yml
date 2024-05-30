@@ -1,0 +1,22 @@
+- name: Edit keystone.conf file
+  template:
+    src: ../templates/keystone.conf.j2
+    dest: /etc/keystone/keystone.conf
+
+# 同步之前，确保selinux关闭，关闭selinux后reboot节点
+- name: su db
+  command: su -s /bin/sh -c "keystone-manage db_sync" keystone
+
+- name: init fernet secret repo
+  command: keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
+
+- name: init fernet credential_setup
+  command: keystone-manage credential_setup --keystone-user keystone --keystone-group keystone
+
+- name: start keystone server
+  command: keystone-manage bootstrap --bootstrap-password "{{ ADMIN_PASS }}" \
+        --bootstrap-admin-url http://"{{ DEST_IP }}":5000/v3/ \
+        --bootstrap-internal-url http://"{{ DEST_IP }}":5000/v3/ \
+        --bootstrap-public-url http://"{{ DEST_IP }}":5000/v3/ \
+        --bootstrap-region-id RegionOne
+

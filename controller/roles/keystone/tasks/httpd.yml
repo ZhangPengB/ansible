@@ -1,0 +1,54 @@
+- name: transfer httpd.conf
+  template:
+    src: ../templates/httpd.conf.j2
+    dest: /etc/httpd/conf/httpd.conf
+
+- name: check src file if exist
+  stat:
+    path: /usr/share/keystone/wsgi-keystone.conf
+  register: src_file_check
+  ignore_errors: true
+
+- name: create soft link for /etc/httpd/conf/httpd.conf
+  command: ln -s /usr/share/keystone/wsgi-keystone.conf /etc/httpd/conf.d/     # ln -s [src] [dest]
+  args:
+    creates: /etc/httpd/conf.d/wsgi-keystone.conf   # 检查symbolic link是否已经存在，存在时就不用执行，否则执行
+  when: src_file_check.stat.exists   # 源文件（指向文件）必须存在
+
+- name: enable httpd.service
+  systemd:
+    name: httpd.service
+    enabled: yes
+
+- name: start httpd.service
+  systemd:
+    name: httpd.service
+    state: started
+  register: httpd_result
+  retries: 5
+  delay: 2
+  until: httpd_result is success
+
+- name: check keystone service in httpd if exist
+  uri:
+    url: http://{{ DEST_IP }}:5000/v3/
+    return_content: no
+    status_code: 200
+  register: keystone_response
+  ignore_errors: true
+
+# 输出警示消息
+- name: Verify Keystone service status
+  debug:
+    msg: "Keystone service is not running, prepare retry to restart httpd service"
+  when: keystone_response.status != 200
+
+- name: restart httpd service for keystone service
+  service:
+    name: httpd.service
+    state: started
+  when: keystone_response.status != 200
+  register: httpd_restart_result
+  retries: 5
+  delay: 2
+  until: httpd_restart_result is success

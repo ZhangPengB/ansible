@@ -1,0 +1,6 @@
+- name: validate neutron service if success
+  shell: |
+    source /root/admin-openrc.sh
+    openstack network agent list
+  register: network_agent_check
+  failed_when: network_agent_check.rc !=0

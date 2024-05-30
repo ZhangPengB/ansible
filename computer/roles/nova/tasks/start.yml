@@ -1,0 +1,21 @@
+---
+# 计算节点nova-compute部分：自启动和启动libvirtd和openstack-nova-compute service
+- name: enabled libvirtd service
+  systemd:
+    name: libvirtd.service
+    enabled: yes
+  
+- name: enabled openstack-nova-compute service
+  systemd:
+    name: openstack-nova-compute.service
+    enabled: yes
+
+- name: started libvirtd service
+  systemd:
+    name: libvirtd.service
+    state: started
+
+- name: start openstack-nova-compute service
+  systemd:
+    name: openstack-nova-compute.service
+    state: started

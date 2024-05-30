@@ -1,0 +1,9 @@
+---
+# tasks file for nova
+- include_tasks: install_nova_db.yml
+- include_tasks: create_res.yml
+- include_tasks: install_nova.yml
+- include_tasks: config_nova.yml
+- include_tasks: nova_db_sync.yml
+- include_tasks: start.yml
+- include_tasks: validate.yml

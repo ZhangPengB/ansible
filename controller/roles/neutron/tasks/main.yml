@@ -1,0 +1,9 @@
+---
+# tasks file for neutron
+- include_tasks: install_neutron_db.yml
+- include_tasks: create_res.yml
+- include_tasks: install_neutron.yml
+- include_tasks: config_neutron.yml
+- include_tasks: sync_db.yml
+- include_tasks: start.yml
+- include_tasks: validate.yml

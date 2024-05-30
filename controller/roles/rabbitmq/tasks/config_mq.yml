@@ -1,0 +1,23 @@
+- name: config rabbitmq enabled when power on
+  systemd:
+    name: rabbitmq-server.service
+    enabled: yes
+
+- name: start rabbitmq server
+  systemd:
+    name: rabbitmq-server.service
+    state: started
+
+- name: check rabbit user openstack if exists
+  shell: rabbitmqctl list_users | grep openstack
+  register: rabbitmq_user_openstack_check
+  ignore_errors: true
+  failed_when: false
+
+# add_user is the same as create user  
+- name: add rabbitmq user openstack
+  command: rabbitmqctl add_user openstack "{{ RABBIT_PASS }}"
+  when: rabbitmq_user_openstack_check.rc != 0
+
+- name: config permission for rabbitmq
+  command: rabbitmqctl set_permissions openstack ".*" ".*" ".*"

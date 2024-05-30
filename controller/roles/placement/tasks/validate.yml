@@ -1,0 +1,44 @@
+- name: placement status check
+  shell: |
+    source /root/admin-openrc.sh
+    placement-status upgrade check
+
+- name: check placement service in httpd service if running 
+  uri:
+    url: http://{{ DEST_IP }}:8778
+    return_content: no
+    status_code: 200  # 设置成期望值
+  register: placement_response
+  ignore_errors: true
+
+
+# 输出警示消息
+- name: Verify placement service status
+  debug:
+    msg: "placement service is not running, prepare retry to restart httpd service"
+  when: placement_response.status != 200
+
+- name: restart httpd service for placement service
+  service:
+    name: httpd.service
+    state: started
+  when: placement_response.status != 200
+  register: httpd_restart_result
+  retries: 5
+  delay: 2
+  until: httpd_restart_result is success
+
+
+# 离线源没有这个包，下面的task都没有验证
+# - name: install osc-placement
+#   yum:
+#     name: " {{ item }}"
+#     state: present
+#   with_items:
+#     - python3-osc-placement
+
+# - name: list avaliable resource
+#   shell: |
+#     source /root/admin-openrc.sh
+#     openstack --os-placement-api-version 1.2 resource class list --sort-column name
+#     openstack --os-placement-api-version 1.6 trait list --sort-column name

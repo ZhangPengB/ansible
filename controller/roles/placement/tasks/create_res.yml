@@ -1,0 +1,107 @@
+# 1. placement API 服务资源
+- name: check user placement if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show placement
+  register: user_placement_check
+  ignore_errors: true
+
+- name: check domain default if exist
+  shell: |
+    source /root/admin-openrc.sh
+    openstack domain show default
+  register: domain_default_check
+  ignore_errors: true
+
+# 创建user placement：直接注入密码
+- name: create user placement
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user create --domain default --password "{{ PLACEMENT_PASS }}" placement
+  when: domain_default_check.rc == 0 and user_placement_check.rc != 0
+
+- name: check project service if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack project show service
+  register: project_service_check
+  ignore_errors: true
+
+- name: check user placement if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show placement
+  register: user_placement_check
+  ignore_errors: true
+
+- name: check role admin if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role show admin
+  register: role_admin_check
+  ignore_errors: true
+
+- name: role admin add to project service and user placement
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role add --project service --user placement admin
+  when: project_service_check.rc == 0 and user_placement_check.rc == 0 and role_admin_check.rc == 0
+
+- name: check service placement(name:placement type:placement) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service show placement
+  register: service_placement_check
+  ignore_errors: true
+
+- name: create service named placement with type:placement
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service create --name placement --description "Placement API" placement
+  when: service_placement_check.rc != 0
+
+
+# 2. placement 域名
+# public 
+- name: check endpoint (http://"{{ DEST_IP }}":8778,public,RegionOne,placement) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":8778 | grep public | grep RegionOne | grep placement
+  register: endpoint_placement_public_check
+  ignore_errors: true
+
+- name: create endpoint placement public 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne placement public http://"{{ DEST_IP }}":8778
+  when: endpoint_placement_public_check.rc !=0
+
+
+# internal 
+- name: check endpoint (http://"{{ DEST_IP }}":8778,internal,RegionOne,placement) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":8778 | grep internal | grep RegionOne | grep placement
+  register: endpoint_placement_internal_check
+  ignore_errors: true
+
+- name: create endpoint placement internal 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne placement internal http://"{{ DEST_IP }}":8778
+  when: endpoint_placement_internal_check.rc !=0
+
+
+# admin 
+- name: check endpoint (http://"{{ DEST_IP }}":8778,admin,RegionOne,placement) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":8778 | grep admin | grep RegionOne | grep placement
+  register: endpoint_placement_admin_check
+  ignore_errors: true
+
+- name: create endpoint placement admin 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne placement admin http://"{{ DEST_IP }}":8778
+  when: endpoint_placement_admin_check.rc !=0

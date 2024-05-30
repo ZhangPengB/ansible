@@ -1,0 +1,5 @@
+[myyum]
+name=myyum
+baseurl=file:////home/myyum
+enabled=1
+gpgcheck=0

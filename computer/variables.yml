@@ -1,0 +1,20 @@
+# neutron
+CINDER_DBPASS: 123456
+MYSQL_DBPASS: 123456
+DEST_IP: 192.168.10.113   # 控制节点IP
+NEUTRON_PASS: 123456
+NOVA_PASS: 123456
+RABBIT_PASS: 123456
+# linuxbridge_agent.ini文件使用
+COMPUTER_IP: "{{ ansible_default_ipv4.address }}"   # 当前计算节点的IP，多节点部署需采用动态变量方式
+
+
+# nova
+# CINDER_DBPASS: 123456
+# MYSQL_DBPASS: 123456
+# DEST_IP: 192.168.10.113
+# NEUTRON_PASS: 123456
+# NOVA_PASS: 123456
+# RABBIT_PASS: 123456
+PLACEMENT_PASS: 123456
+my_ip: "{{ ansible_default_ipv4.address }}"   # 当前节点的IP，多节点部署需采用动态变量方式

@@ -1,0 +1,10 @@
+# 这块放到nova中渲染，在cinder中渲染时，模板已经发生变化，cinder要是再次渲染会导致内容覆盖,nova中已经设置RegionOne
+# - name: render nova config
+#   template:
+#     src: ../templates/nova.conf.j2
+#     dest: /etc/nova/nova.conf
+
+- name: restart openstack-nova-api service
+  systemd:
+    name: openstack-nova-api
+    state: restarted

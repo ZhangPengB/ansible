@@ -1,0 +1,42 @@
+--- 
+- name: init env
+  hosts: ssh_without_pass # 填写目标主机组
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Check if firewalld is installed
+      command: rpm -q firewalld
+      register: firewalld_check
+      failed_when: firewalld_check.rc != 0
+
+    # 关闭防火墙
+    - name: disable firewalld
+      service: 
+        name: firewalld
+        enabled: false
+        state: stopped
+      when:
+        - firewalld_check.rc == 0
+
+    # 临时设置selinux为permissive权限，可能不起作用，最好设置为disabled，然后重启。
+    # sestatus可查看selinunx的值
+    - name: disabled selinux
+      command: setenforce 0  # 临时关闭selinux
+      ignore_errors: true
+
+
+    # 检测ansible控制节点和待部署节点间是否已经实现免密
+    - name: Ping check if already login without pass within ansible and target host
+      ping:
+      register: ping_result
+      ignore_errors: true
+
+    
+
+    # 无法免密时，配置ansible 到远程节点之间免密登录
+    - name: Copy ansible node SSH public key to remote host
+      authorized_key:
+        user: root     # 在variables.yml文件中修改该变量
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      when: ping_result.changed == false
+

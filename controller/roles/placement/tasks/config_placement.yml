@@ -1,0 +1,12 @@
+- name: render placement config file
+  template:
+    src: ../templates/placement.conf.j2
+    dest: /etc/placement/placement.conf
+
+- name: su placement db
+  command: su -s /bin/sh -c "placement-manage db sync" placement
+
+- name: retart httpd service
+  systemd:
+    name: httpd.service
+    state: restarted

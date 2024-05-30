@@ -1,0 +1,10 @@
+# ---
+# # tasks file for rabbitmq
+# - name: Execute install task
+#   import_playbook: install_mq.yml
+
+# - name: Execute config task
+#   import_playbook: config_mq.yml
+
+- include_tasks: install_mq.yml
+- include_tasks: config_mq.yml

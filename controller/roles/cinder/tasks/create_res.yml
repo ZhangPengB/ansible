@@ -1,0 +1,163 @@
+# 1. 创建cinder 服务资源
+- name: check domain default if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack domain show default
+  register: domain_default_check
+  ignore_errors: true
+
+- name: check user cinder if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show cinder
+  register: user_cinder_check
+  ignore_errors: true
+
+- name: create user cinder when if not exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user create --domain default --password "{{ CINDER_PASS }}" cinder
+  when: domain_default_check.rc ==0 and user_cinder_check.rc !=0
+
+- name: check project service if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack project show service
+  register: project_service_check
+  ignore_errors: true
+
+- name: check user cinder if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show cinder
+  register: user_cinder_check
+  ignore_errors: true
+
+- name: check role admin if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role show admin
+  register: role_admin_check
+  ignore_errors: true
+
+- name: add role admin with project service and user cinder
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role add --project service --user cinder admin
+  when: project_service_check.rc ==0 and user_cinder_check.rc==0 and role_admin_check.rc ==0
+
+- name: check service (name:cinderv2 , type:volumev2) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service show volumev2
+  register: service_volumev2_check
+  ignore_errors: true
+
+- name: create service (name:cinderv2 , type:volumev2) if not exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service create --name cinder --description "OpenStack Block Storage" volumev2
+  when: service_volumev2_check.rc != 0
+
+- name: check service (name:cinderv3 , type:volumev3) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service show volumev3
+  register: service_volumev3_check
+  ignore_errors: true
+
+- name: create service (name:cinderv3 , type:volumev3) if not exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service create --name cinder --description "OpenStack Block Storage" volumev3
+  when: service_volumev3_check.rc != 0
+
+
+
+# 2. 创建cinder API服务节点
+# public volumev2
+- name: check endpoint public volumev2 if exists (http://"{{ DEST_IP }}":8776/v2/%\(project_id\)s,volumev2,public,RegionOne)
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":8776/v2/%\(project_id\)s | grep public | grep volumev2 | grep RegionOne
+  register: endpoint_v2_public_check
+  ignore_errors: true
+
+- name: create endpoint public volumev2
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne volumev2 public http://"{{ DEST_IP }}":8776/v2/%\(project_id\)s
+  when: endpoint_v2_public_check.rc != 0
+
+# internal volumev2
+- name: check endpoint internal volumev2 if exists (http://"{{ DEST_IP }}":8776/v2/%\(project_id\)s,volumev2,internal,RegionOne)
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":8776/v2/%\(project_id\)s | grep internal | grep volumev2 | grep RegionOne
+  register: endpoint_v2_internal_check
+  ignore_errors: true
+
+- name: create endpoint internal volumev2
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne volumev2 internal http://"{{ DEST_IP }}":8776/v2/%\(project_id\)s
+  when: endpoint_v2_internal_check.rc != 0
+
+# admin volumev2
+- name: check endpoint admin volumev2 if exists (http://"{{ DEST_IP }}":8776/v2/%\(project_id\)s,volumev2,admin,RegionOne)
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":8776/v2/%\(project_id\)s | grep admin | grep volumev2 | grep RegionOne
+  register: endpoint_v2_admin_check
+  ignore_errors: true
+
+- name: create endpoint admin volumev2
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne volumev2 admin http://"{{ DEST_IP }}":8776/v2/%\(project_id\)s
+  when: endpoint_v2_admin_check.rc != 0
+
+
+# public volumev3
+- name: check endpoint public volumev3 if exists (http://"{{ DEST_IP }}":8776/v3/%\(project_id\)s,volumev3,public,RegionOne)
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":8776/v3/%\(project_id\)s | grep public | grep volumev3 | grep RegionOne
+  register: endpoint_v3_public_check
+  ignore_errors: true
+
+- name: create endpoint public volumev3
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne volumev3 public http://"{{ DEST_IP }}":8776/v3/%\(project_id\)s
+  when: endpoint_v3_public_check.rc != 0
+
+# internal volumev3
+- name: check endpoint internal volumev3 if exists (http://"{{ DEST_IP }}":8776/v3/%\(project_id\)s,volumev3,internal,RegionOne)
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":8776/v3/%\(project_id\)s | grep internal | grep volumev3 | grep RegionOne
+  register: endpoint_v3_internal_check
+  ignore_errors: true
+
+- name: create endpoint internal volumev3
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne volumev3 internal http://"{{ DEST_IP }}":8776/v3/%\(project_id\)s
+  when: endpoint_v3_internal_check.rc != 0
+
+# admin volumev3
+- name: check endpoint admin volumev3 if exists (http://"{{ DEST_IP }}":8776/v3/%\(project_id\)s,volumev3,admin,RegionOne)
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":8776/v3/%\(project_id\)s | grep admin | grep volumev3 | grep RegionOne
+  register: endpoint_v3_admin_check
+  ignore_errors: true
+
+- name: create endpoint admin volumev3
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne volumev3 admin http://"{{ DEST_IP }}":8776/v3/%\(project_id\)s
+  when: endpoint_v3_admin_check.rc != 0
+
+

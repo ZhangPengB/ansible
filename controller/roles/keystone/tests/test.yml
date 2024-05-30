@@ -1,0 +1,12 @@
+---
+- name: test ansible bulitin var ansible_hostname and ansible_default_ipv4
+  hosts: target_hosts
+  tasks:
+    - name: test
+      template:
+        src: ../templates/testhostname.j2
+        dest: /root/hostname
+
+
+
+

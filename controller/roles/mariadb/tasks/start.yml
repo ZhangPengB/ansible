@@ -1,0 +1,19 @@
+- name: enable mariadb mariadb.service
+  systemd:
+    name: mariadb.service
+    enabled: yes
+  register: mariadb_enabled
+  until: mariadb_enabled is success
+  retries: 3
+  delay: 5
+  run_once: true
+
+- name: start mariadb.service
+  systemd:
+    name: mariadb.service
+    state: started
+  register: mariadb_start
+  until: mariadb_start is success
+  retries: 6
+  delay: 5
+  run_once: true

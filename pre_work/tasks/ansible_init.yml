@@ -1,0 +1,48 @@
+- name: init ansible node config
+  hosts: localhost    # 注意：在ansible节点执行！！！！
+  connection: local   # ansible本地执行，而不是在远程节点执行
+  become: true
+  gather_facts: true
+  vars_files:
+    - variables.yml
+  tasks:
+    # 配置ansible控制节点到部署节点的免密登录
+    - name: check ssh-keygen if exists
+      stat:
+        path: ~/.ssh/id_rsa.pub
+      register: ssh_key_result
+      ignore_errors: true
+    
+    # 当不存在时生成密钥
+    - name: gen ssh-key
+      command: ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa
+      when: not ssh_key_result.stat.exists
+
+    - name: check sshpass package if installed
+      command: which sshpass
+      register: sshpass_check
+      ignore_errors: true
+
+    - name: install sshpass when not installed 
+      yum :
+        name: sshpass
+        state: present
+      register: install_result
+      until: install_result is success
+      retries: 5
+      delay: 2
+      when: sshpass_check.rc != 0
+
+    - name: debug print install info if sshpass install this time
+      debug:
+        msg: "install info: {{ install_result }}"
+      when: sshpass_check.rc !=0 
+
+    # 将部署节点的fingerprint信息添加到ansible部署节点的
+    - name: Add target host to known_hosts
+      known_hosts:
+        name: "{{ ansible_host }}"
+        state: present
+        key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' ~ ansible_host) }}"
+
+

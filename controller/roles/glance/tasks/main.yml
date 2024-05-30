@@ -1,0 +1,7 @@
+---
+# tasks file for galance
+- include_tasks: install_glance_db.yml
+- include_tasks: create_res.yml
+- include_tasks: install_glance.yml
+- include_tasks: config.yml
+- include_tasks: validate.yml

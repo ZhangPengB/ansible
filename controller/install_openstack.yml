@@ -1,0 +1,32 @@
+---
+- name: Apply openstack role
+  gather_facts: true
+  hosts: controller_hosts
+  vars_files:
+    - variables.yml
+  roles:
+    - role: mariadb
+      when: enable_mariadb | bool   # 命令行中--extra-args 中传入enable_mariadb参数，bool 为大驼峰值
+
+    - role: rabbitmq
+      when: enable_rabbitmq | bool
+
+    - role: keystone
+      when: enable_keystone | bool
+
+    - role: glance
+      when: enable_glance | bool
+
+    - role: placement
+      when: enable_placement | bool
+
+    # 为了避免安装neutron和cinder等时模板nova.conf被覆盖，所以选择先安装neutron和cinder，后安装nova
+    - role: neutron
+      when: enable_neutron | bool
+
+    - role: cinder
+      when: enable_cinder | bool
+
+    - role: nova
+      when: enable_nova | bool
+

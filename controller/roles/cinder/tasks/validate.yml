@@ -1,0 +1,6 @@
+- name: validate cinder list
+  shell: |
+    source /root/admin-openrc.sh
+    openstack volume service list
+  register: cinder_volume_check
+  failed_when: cinder_volume_check.rc != 0

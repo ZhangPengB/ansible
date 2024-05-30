@@ -1,0 +1,19 @@
+- name: render glance-api.conf file
+  template:
+    src: ../templates/glance-api.conf.j2
+    dest: /etc/glance/glance-api.conf
+  
+- name: su db
+  command: su -s /bin/sh -c "glance-manage db_sync" glance
+
+- name: enable openstack-glance-api service
+  systemd:
+    name: openstack-glance-api.service
+    enabled: yes
+
+- name: start openstack-glance-api service
+  systemd:
+    name: openstack-glance-api.service
+    state: started
+
+        

@@ -1,0 +1,103 @@
+# 1. 创建nova API服务资源
+- name: check domain default if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack domain show default
+  ignore_errors: true
+  register: domain_default_check
+
+- name: check user nova if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show nova
+  ignore_errors: true
+  register: user_nova_check
+
+- name: create user nova within default domain 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user create --domain default --password "{{ NOVA_PASS }}" nova
+  when: domain_default_check.rc ==0 and user_nova_check.rc != 0
+
+- name: check project service if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack project show service 
+  ignore_errors: true
+  register: project_service_check
+
+- name: check user nova if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show nova
+  ignore_errors: true
+  register: user_nova_check
+
+- name: check role admin if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role show admin
+  ignore_errors: true
+  register: role_admin_check
+
+- name: add role admin to service project and nova user
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role add --project service --user nova admin
+  when: project_service_check.rc ==0 and user_nova_check.rc==0 and role_admin_check.rc==0
+
+- name: check service nova if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service show nova
+  register: service_nova_check
+  ignore_errors: true
+
+- name: create service named nova with type is compute
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service create --name nova --description "OpenStack Compute" compute
+  when: service_nova_check.rc != 0
+
+# 2.创建服务端点endpoint
+# public 
+- name: check public endpoint (compute public http://"{{ DEST_IP }}":8774/v2.1) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep public | grep http://"{{ DEST_IP }}":8774/v2.1 | grep compute
+  register: endpoint_public_check
+  ignore_errors: true
+
+- name: create endpoint public
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne compute public http://"{{ DEST_IP }}":8774/v2.1
+  when: endpoint_public_check.rc != 0
+
+# internal
+- name: check internal endpoint (compute internal http://"{{ DEST_IP }}":8774/v2.1) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep internal | grep http://"{{ DEST_IP }}":8774/v2.1 | grep compute
+  register: endpoint_internal_check
+  ignore_errors: true
+
+- name: create endpoint internal
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne compute internal http://"{{ DEST_IP }}":8774/v2.1
+  when: endpoint_internal_check.rc != 0
+
+# admin
+- name: check admin endpoint (compute admin http://"{{ DEST_IP }}":8774/v2.1) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep admin | grep http://"{{ DEST_IP }}":8774/v2.1 | grep compute
+  register: endpoint_admin_check
+  ignore_errors: true
+
+- name: create endpoint admin
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne compute admin http://"{{ DEST_IP }}":8774/v2.1
+  when: endpoint_admin_check.rc != 0

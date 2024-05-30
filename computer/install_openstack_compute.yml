@@ -1,0 +1,14 @@
+---
+- name: Apply openstack role
+  gather_facts: true
+  hosts: computer_hosts   # 这里需要更改
+  vars_files:
+    - variables.yml
+  roles:
+    # 为了避免安装neutron时模板nova.conf被覆盖，所以选择先安装neutron，后安装nova
+    - role: neutron
+      when: enable_neutron | bool
+
+    - role: nova
+      when: enable_nova | bool
+

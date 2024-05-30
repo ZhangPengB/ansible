@@ -1,0 +1,104 @@
+# 1.glance 服务资源
+- name: check user glance if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show glance
+  ignore_errors: true
+  register: user_glance_check
+
+- name: check domain default if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack domain show default
+  register: domain_default_check
+  ignore_errors: true
+
+# 创建user glance: 直接注入密码
+- name: create user glance in default domain with password 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user create --domain default --password "{{ GLANCE_PASS }}" glance
+  when: domain_default_check.rc == 0 and user_glance_check.rc !=0
+
+- name: check role admin if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role show admin
+  register: role_admin_check
+  ignore_errors: true
+
+- name: check project service if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack project show service
+  register: project_service_check
+  ignore_errors: true
+
+- name: check user glance if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show glance
+  register: user_glance_check
+  ignore_errors: true
+
+- name: add role to project and user
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role add --project service --user glance admin
+  when: role_admin_check.rc == 0 and project_service_check.rc == 0 and user_glance_check.rc == 0
+
+- name: check service image if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service show image
+  register: service_image_check
+  ignore_errors: true
+
+- name: create service image if not exist
+  shell: |
+    source /root/admin-openrc.sh
+    openstack service create --name glance --description "OpenStack Image" image
+  when: service_image_check.rc != 0
+
+# 2.glance域名
+# public
+- name: check endpoint (http://"{{ DEST_IP }}":9292,public,image,RegionOne) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":9292 | grep public | grep RegionOne | grep image
+  register: endpoint_glance_public
+  ignore_errors: true
+
+- name: create glance public endpoint 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne image public http://"{{ DEST_IP }}":9292
+  when: endpoint_glance_public.rc !=0
+
+# internal
+- name: check endpoint (http://"{{ DEST_IP }}":9292,internal,image,RegionOne) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":9292 | grep internal | grep RegionOne | grep image
+  register: endpoint_glance_internal
+  ignore_errors: true
+
+- name: create glance internal endpoint 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne image internal http://"{{ DEST_IP }}":9292
+  when: endpoint_glance_internal.rc != 0
+
+# admin 
+- name: check endpoint (http://"{{ DEST_IP }}":9292,admin,image,RegionOne) if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint list | grep http://"{{ DEST_IP }}":9292 | grep admin | grep RegionOne | grep image
+  register: endpoint_glance_admin
+  ignore_errors: true
+
+- name: create glance admin endpoint 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack endpoint create --region RegionOne image admin http://"{{ DEST_IP }}":9292
+  when: endpoint_glance_admin.rc != 0

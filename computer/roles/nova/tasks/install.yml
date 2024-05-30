@@ -1,0 +1,35 @@
+---
+- name: install nova compute
+  hosts: computer_hosts
+  gather_facts: true
+  become: true
+  vars_files:
+    - variables.yml
+  tasks:
+    # 计算节点nova-compute 部分：安装openstack-nova-compute
+    - name: install nova compute by yum
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - openstack-nova-compute
+      register: install_result
+      until: install_result is success
+      retries: 5
+      delay: 2
+
+      
+    - name: display nova compute install result
+      debug:
+        msg: "install res; {{ install_result }}"
+    
+    - name: display system arch
+      debug:
+        var: ansible_architecture
+
+    # 检查系统架构，如果是arm, 则安装edk2-aarch64,否则跳过
+    - name: check system arch and install package if arm
+      yum: 
+        name: edk2-aarch64
+        state: present
+      when: ansible_architecture == "aarch64" and ansible_processor == "aarch64"

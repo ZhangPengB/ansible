@@ -1,0 +1,67 @@
+---
+- name: create glance service auth and res
+  hosts: target_hosts
+  become: true
+  gather_facts: false
+  vars:
+    DEST_IP: 192.168.10.113
+  vars_prompt:
+    - name: user_password
+      prompt: "Enter your password"
+      private: yes
+  tasks:
+    # - name: check endpoint (http://"{{ DEST_IP }}":9292,public,image,RegionOne) if exists
+    #   shell: |
+    #     source /root/admin-openrc.sh
+    #     openstack endpoint list | grep http://"{{ DEST_IP }}":9292 | grep public | grep RegionOne | grep image
+    #   register: endpoint_glance_public
+    #   ignore_errors: true
+
+    # - name: create glance public endpoint 
+    #   shell: |
+    #     source /root/admin-openrc.sh
+    #     openstack endpoint create --region RegionOne image public http://"{{ DEST_IP }}":9292
+    #   when: endpoint_glance_public.rc !=0
+
+    # # internal
+    # - name: check endpoint (http://"{{ DEST_IP }}":9292,internal,image,RegionOne) if exists
+    #   shell: |
+    #     source /root/admin-openrc.sh
+    #     openstack endpoint list | grep http://"{{ DEST_IP }}":9292 | grep internal | grep RegionOne | grep image
+    #   register: endpoint_glance_internal
+    #   ignore_errors: true
+
+    # - name: create glance internal endpoint 
+    #   shell: |
+    #     source /root/admin-openrc.sh
+    #     openstack endpoint create --region RegionOne image internal http://"{{ DEST_IP }}":9292
+    #   when: endpoint_glance_internal.rc != 0
+    
+    # # admin 
+    # - name: check endpoint (http://"{{ DEST_IP }}":9292,admin,image,RegionOne) if exists
+    #   shell: |
+    #     source /root/admin-openrc.sh
+    #     openstack endpoint list | grep http://"{{ DEST_IP }}":9292 | grep admin | grep RegionOne | grep image
+    #   register: endpoint_glance_admin
+    #   ignore_errors: true
+
+    # - name: create glance admin endpoint 
+    #   shell: |
+    #     source /root/admin-openrc.sh
+    #     openstack endpoint create --region RegionOne image admin http://"{{ DEST_IP }}":9292
+    #   when: endpoint_glance_admin.rc != 0
+
+    # - name: create user glance in default domain with password 
+    #   expect:
+    #     command: bash -c 'source /root/admin-openrc.sh && openstack user create --domain default --password-prompt glance'
+    #     responses:
+    #       "User Password:": "{{ GLANCE_PASS }}"
+    #       "Repeat User Password:": "{{ GLANCE_PASS }}"
+    #   when: domain_default_check.rc == 0 and user_glance_check.rc!=0
+
+    # - name: Create OpenStack user with password prompt
+    #   os_user:
+    #     name: xxx
+    #     domain: default
+    #     password_prompt: yes
+    #     state: present

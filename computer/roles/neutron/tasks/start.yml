@@ -1,0 +1,16 @@
+- name: enable neutron-linuxbridge-agent service
+  systemd:
+    name: neutron-linuxbridge-agent.service
+    enabled: yes
+
+- name: restart neutron-linuxbridge-agent.service 
+  systemd:
+    name: neutron-linuxbridge-agent.service
+    state: restarted
+  
+
+# 放到nova中重启
+# - name: restart openstack-nova-compute.service
+#   systemd:
+#     name: openstack-nova-compute.service
+#     state: restarted

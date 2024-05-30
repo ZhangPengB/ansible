@@ -1,0 +1,11 @@
+
+---
+# tasks file for pre_work
+- name: Execute ansible init in order
+  import_playbook: ansible_init.yml
+
+- name: Execute init Env in order
+  import_playbook: initEnv.yml
+
+- name: Execute myyum in order
+  import_playbook: myyum.yml

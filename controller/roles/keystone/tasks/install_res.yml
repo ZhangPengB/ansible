@@ -1,0 +1,112 @@
+# 安装4.0.2版本的openstackclient
+- name: install python3-openstackclient
+  yum:
+    name: "{{ item }}-4.0.2"
+    state: present
+    # enforces: 4.0.2
+  with_items:
+    - python3-openstackclient
+  register: install_result
+
+- name: Display installation information
+  debug: 
+    msg: "Package installed: {{ install_result }}"
+
+##### 开始创建服务资源：domain,projects,users,roles
+# 1.domain
+- name: Check if example domain exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack domain show example
+  register: domain_example_check
+  ignore_errors: true
+
+- name: create domain named example 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack domain create --description "An Example Domain" example
+  when: domain_example_check.rc != 0
+  register: create_domain_res
+  # failed_when: create_domain_res.rc != 0  # 执行失败时报错
+
+# 2. project 
+- name: check domain default if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack domain show default
+  register: domain_default_check
+  ignore_errors: true
+
+- name: check project service if exists
+  shell: | 
+    source /root/admin-openrc.sh
+    openstack project show service
+  register: project_service_check
+  ignore_errors: true
+
+- name: create project named service in default domain
+  shell: |
+    source /root/admin-openrc.sh
+    openstack project create --domain default --description "Service Project" service
+  when: domain_default_check.rc == 0 and project_service_check.rc != 0
+
+- name: check project myproject if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack project show myproject
+  register: project_myproject_check
+  ignore_errors: true
+
+- name: create non-admin project named myproject in default domain
+  shell: |
+    source /root/admin-openrc.sh
+    openstack project create --domain default --description "Demo Project" myproject
+  when: domain_default_check.rc == 0 and project_myproject_check.rc != 0
+  # register: project_myproject_create_res
+
+- name: check user myuser if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show myuser
+  register: user_myuser_check
+  ignore_errors: true
+
+- name: create user named myuser with password in default domain
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user create --domain default  --password "{{ myuser_pass }}" myuser
+  when: domain_default_check.rc == 0 and user_myuser_check.rc !=0
+
+
+- name: check myrole if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role show myrole
+  register: role_myrole_check
+  ignore_errors: true
+
+- name: create role named myrole
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role create myrole
+  when: role_myrole_check.rc != 0
+
+- name: check project myproject if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack project show myproject 
+  register: project_myproject_check
+  ignore_errors: true
+
+- name: check user myuser if exists
+  shell: |
+    source /root/admin-openrc.sh
+    openstack user show myuser
+  register: user_myuser_check
+  ignore_errors: true
+
+- name: myrole role add to myproject project
+  shell: |
+    source /root/admin-openrc.sh
+    openstack role add --project myproject --user myuser myrole
+  when: project_myproject_check.rc == 0 and user_myuser_check.rc == 0

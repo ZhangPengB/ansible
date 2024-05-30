@@ -1,0 +1,27 @@
+- name: check compute service if success start
+  shell: |
+    source /root/admin-openrc.sh
+    openstack compute service list
+  register: compute_service_check
+  failed_when: compute_service_check.rc != 0
+
+- name: check catlog 
+  shell: |
+    source /root/admin-openrc.sh
+    openstack catalog list
+  register: catlog_list_check
+  failed_when: catlog_list_check.rc != 0
+
+- name: check image list
+  shell: |
+    source /root/admin-openrc.sh
+    openstack image list
+  register: image_list_check
+  failed_when: image_list_check.rc != 0
+
+- name: check cells if successed
+  shell: |
+    source /root/admin-openrc.sh
+    nova-status upgrade check
+  register: nova_upgrade_check
+  failed_when: nova_upgrade_check.rc != 0

@@ -1,0 +1,13 @@
+# - name: Execute install_packages in order
+#   import_playbook: install_packages.yml
+
+# - name: Execute config tasks
+#   import_playbook: configure_mariadb.yml
+  
+# - name: Execute start task
+#   import_playbook: start.yml
+
+- include_tasks: install_packages.yml
+- include_tasks: configure_mariadb.yml
+- include_tasks: start.yml
+  # when: ansible_os_family == 'RedHat'

@@ -1,0 +1,6 @@
+- include_tasks: install_keystone_db.yml
+- include_tasks: install_keystone.yml
+- include_tasks: config_keystone.yml
+- include_tasks: httpd.yml
+- include_tasks: admin_env.yml
+- include_tasks: install_res.yml

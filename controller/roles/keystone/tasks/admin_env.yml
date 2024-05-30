@@ -1,0 +1,4 @@
+- name: Render template and create ~/admin-openrc
+  template:
+    src: ../templates/admin_openrc.j2
+    dest: /root/admin-openrc.sh
