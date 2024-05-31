@@ -1,11 +1,11 @@
 - name: enable neutron-linuxbridge-agent service
   systemd:
-    name: neutron-linuxbridge-agent.service
+    name: neutron-linuxbridge-agent
     enabled: yes
 
 - name: restart neutron-linuxbridge-agent.service 
   systemd:
-    name: neutron-linuxbridge-agent.service
+    name: neutron-linuxbridge-agent
     state: restarted
   
 

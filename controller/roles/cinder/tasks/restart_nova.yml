@@ -4,7 +4,9 @@
 #     src: ../templates/nova.conf.j2
 #     dest: /etc/nova/nova.conf
 
-- name: restart openstack-nova-api service
-  systemd:
-    name: openstack-nova-api
-    state: restarted
+
+# 由于先于nova安装，因此nova-api在这里无法重启，nova安装后会启动
+# - name: restart openstack-nova-api service
+#   systemd:
+#     name: openstack-nova-api
+#     state: restarted

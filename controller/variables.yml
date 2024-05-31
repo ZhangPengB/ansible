@@ -12,7 +12,7 @@ DEST_IP: "{{ ansible_default_ipv4.address }}"
 ADMIN_PASS: 123456
 OS_AUTH_HOST: "{{ ansible_default_ipv4.address }}"
 myuser_pass: 123456
-s
+
 
 # glance
 #MYSQL_DBPASS: 123456
@@ -54,4 +54,4 @@ CINDER_DBPASS: 123456
 # NEUTRON_PASS: 123456
 # NOVA_PASS: 123456
 # RABBIT_PASS: 123456
-# CINDER_PASS: 123456
+CINDER_PASS: 123456

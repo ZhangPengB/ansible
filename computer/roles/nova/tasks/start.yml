@@ -1,4 +1,3 @@
----
 # 计算节点nova-compute部分：自启动和启动libvirtd和openstack-nova-compute service
 - name: enabled libvirtd service
   systemd:

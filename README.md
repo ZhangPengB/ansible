@@ -26,7 +26,7 @@
 
 修改hosts.ini文件中主机组下面的主机信息，不要修改主机组名称
 
-~~检查pre_work/tasks/variables.yml文件中信息是否符合预期~~
+~~修改pre_work/tasks/variables.yml文件中ansible_host为待部署节点ip~~
     
 进入pre_work目录
 
@@ -42,7 +42,7 @@
 执行命令:
 
 ```
-ansible-playbook -i ./hosts/hosts.ini install_openstack --extra-args "enable_mariadb= True enable_rabbitmq=True enable_keystone=True enable_glance=True enable_placement=True enable_neutron=True enable_cinder= True enable_nova=True"
+ansible-playbook -i ./hosts/hosts.ini install_openstack.yml --extra-vars "enable_mariadb=True enable_rabbitmq=True enable_keystone=True enable_glance=True enable_placement=True enable_neutron=True enable_cinder=True enable_nova=True"
 ```
 
 
@@ -56,5 +56,13 @@ ansible-playbook -i ./hosts/hosts.ini install_openstack --extra-args "enable_mar
 执行命令：
 
 ```
-ansible-playbook -i ./hosts/hosts.ini install_openstack_computer --extra-args "enable_neutron=True enable_nova=True"
+ansible-playbook -i ./hosts/hosts.ini install_openstack_computer.yml --extra-vars "enable_neutron=True enable_nova=True"
 ```
+
+### 一些
+1. 部署节点hostname不要有特殊字符如下划线_, @等符号
+2. glance validate中会在线下载cirros镜像去验证，大多数生产环境是断网的，是否采用其他验证方式替代？
+3. 部署节点/etc/hosts中nameserver 配置域名有问题，需要检查和配置
+
+### 需要解决的问题
+2. 现网环境基本不允许关闭防火墙，目前安装前都需要关闭防火墙，如何解决？

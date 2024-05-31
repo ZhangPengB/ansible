@@ -1,26 +1,18 @@
----
-- name: config nova compute
-  hosts: computer_hosts
-  gather_facts: true
-  become: true
-  vars_files:
-    - variables.yml
-  tasks:
-    # - name: check if nova.conf file exists
-    #   stat: 
-    #     path: /etc/nova/nova.conf
-    #   register: file_info
-    #   ignore_errors: true
+# - name: check if nova.conf file exists
+#   stat: 
+#     path: /etc/nova/nova.conf
+#   register: file_info
+#   ignore_errors: true
 
-    # - name: Display nova.conf file info if not exists
-    #   debug:
-    #     msg: "file not exists"
-    #   when: not file_info.stat.exists
+# - name: Display nova.conf file info if not exists
+#   debug:
+#     msg: "file not exists"
+#   when: not file_info.stat.exists
 
-    - name: transport nova.conf config file
-      template:
-        src: ../templates/nova.conf.j2
-        dest: /etc/nova/nova.conf
-      # when: file_info.stat.exists
+- name: transport nova.conf config file
+  template:
+    src: ../templates/nova.conf.j2
+    dest: /etc/nova/nova.conf
+  # when: file_info.stat.exists
 
 

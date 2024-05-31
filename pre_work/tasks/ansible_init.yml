@@ -38,11 +38,11 @@
         msg: "install info: {{ install_result }}"
       when: sshpass_check.rc !=0 
 
-    # 将部署节点的fingerprint信息添加到ansible部署节点的
-    - name: Add target host to known_hosts
-      known_hosts:
-        name: "{{ ansible_host }}"
-        state: present
-        key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' ~ ansible_host) }}"
+    #将部署节点的fingerprint信息添加到ansible部署节点的，指纹信息在部署前手动ssh一次添加到ansible控制节点中，下面的先注释掉
+    # - name: Add target host to known_hosts
+    #   known_hosts:
+    #     name: "{{ ansible_host }}"
+    #     state: present
+    #     key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' ~ ansible_host) }}"
 
 

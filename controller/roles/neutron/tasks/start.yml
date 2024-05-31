@@ -1,8 +1,9 @@
+# 因先安装neutron，后安装nova，因此这里先取消掉
 # 1. restart openstack-nova-api service
-- name: restart openstack-nova-api service
-  systemd:
-    name: openstack-nova-api.service
-    state: restarted
+# - name: restart openstack-nova-api service
+#   systemd:
+#     name: openstack-nova-api.service
+#     state: restarted
 
 # 2. 设置自启动网络服务
 - name: enable neutron-server service

@@ -1,12 +1,4 @@
----
-- name: config cinder
-  hosts: controller_hosts
-  become: true
-  gather_facts: false
-  vars_files:
-    - variables.yml
-  tasks:
-    - name: render cinder conf
-      template:
-        src: ../templates/cinder.conf.j2
-        dest: /etc/cinder/cinder.conf
+- name: render cinder conf
+  template:
+    src: ../templates/cinder.conf.j2
+    dest: /etc/cinder/cinder.conf

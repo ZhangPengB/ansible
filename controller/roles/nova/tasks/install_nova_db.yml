@@ -1,98 +1,29 @@
-#1. 创建nova,nova_api,nova_cell0 数据库
-- name: login mariadb and create nova_api database
+# #1. 创建nova,nova_api,nova_cell0 数据库
+- name: Create nova databases
   mysql_db:
-    login_user: root
-    login_password: "{{ MYSQL_DBPASS }}"
-    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
-    name: nova_api
+    login_unix_socket: /var/lib/mysql/mysql.sock
+    name: "{{ item }}"
     state: present
+  loop:
+    - nova
+    - nova_api
+    - nova_cell0
 
-# create nova database and grant privileges for localhost and %
-- name: login mariadb and create nova database
-  mysql_db:
-    login_user: root
-    login_password: "{{ MYSQL_DBPASS }}"
-    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
-    name: nova
-    state: present
-
-# create nova_cell0 database and grant privileges for localhost and %
-- name: login mariadb and create nova_cell0 database
-  mysql_db:
-    login_user: root
-    login_password: "{{ MYSQL_DBPASS }}"
-    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
-    name: nova_cell0
-    state: present
-
-
-
-# 2.授权nova用户可对nova,nova_api,nova_cell0数据库的访问权限
-# 授权nova_api DB对nova用户
-- name: Grant privileges to nova_api database user (localhost)
+# 2. 对nova 用户给nova,nova_api,nova_cell0 数据库授予ALL权限
+# 采取追加授权方式
+- name: Grant privileges to nova user on databases
   mysql_user:
-    # login_user: root
-    # login_password: 
-    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
+    login_unix_socket: /var/lib/mysql/mysql.sock
     name: nova
     password: "{{ NOVA_DBPASS }}"
-    host: localhost
-    priv: "nova_api.*:ALL"
+    host: "{{ item.host }}"
+    priv: "{{ item.privileges }}"
+    append_privs: yes   # 追加授权方式
     state: present
-
-- name: Grant privileges to nova_api database user (%)
-  mysql_user:
-    # login_user: root
-    # login_password: "{{ mysql_root_password }}"
-    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
-    name: nova
-    password: "{{ NOVA_DBPASS }}"
-    host: "%"
-    priv: "nova_api.*:ALL"
-    state: present
-
-# 授权nova DB 对nova 用户
-- name: Grant privileges to nova database user (localhost)
-  mysql_user:
-    # login_user: root
-    # login_password: 
-    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
-    name: nova
-    password: "{{ NOVA_DBPASS }}"
-    host: localhost
-    priv: "nova.*:ALL"
-    state: present
-
-- name: Grant privileges to nova database user (%)
-  mysql_user:
-    # login_user: root
-    # login_password: "{{ mysql_root_password }}"
-    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
-    name: nova
-    password: "{{ NOVA_DBPASS }}"
-    host: "%"
-    priv: "nova.*:ALL"
-    state: present
-
-# 授权nova_cell0对nova用户
-- name: Grant privileges to nova_cell0 database user (localhost)
-  mysql_user:
-    # login_user: root
-    # login_password: 
-    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
-    name: nova
-    password: "{{ NOVA_DBPASS }}"
-    host: localhost
-    priv: "nova_cell0.*:ALL"
-    state: present
-
-- name: Grant privileges to nova_cell0 database user (%)
-  mysql_user:
-    # login_user: root
-    # login_password: "{{ mysql_root_password }}"
-    login_unix_socket: /var/lib/mysql/mysql.sock   # 指定mariadb的unix socket 路径
-    name: nova
-    password: "{{ NOVA_DBPASS }}"
-    host: "%"
-    priv: "nova_cell0.*:ALL"
-    state: present
+  loop:
+    - { host: 'localhost', privileges: "nova.*:ALL" }
+    - { host: '%', privileges: "nova.*:ALL" }
+    - { host: 'localhost', privileges: "nova_api.*:ALL" }
+    - { host: '%', privileges: "nova_api.*:ALL" }
+    - { host: 'localhost', privileges: "nova_cell0.*:ALL" }
+    - { host: '%', privileges: "nova_cell0.*:ALL" }
