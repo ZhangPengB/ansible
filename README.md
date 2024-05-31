@@ -8,17 +8,36 @@
     主要完成ansible部署节点前的一些准备工作，主要包括待部署节点的防火墙检查和关闭，selinux的检查和临时关闭，ansible控制节点和待部署节点之间的免密登录，以及离线源上传、解压、在线源备份、离线源配置等基础功能。
 
 
-
 ### controller
-    完成对单节点controller节点部署
+    完成对单节点controller节点部署。
+    目前包含mariadb,rabbitmq,keystone,glance,placement,neutron,cinder,nova
 
 ### computer
-    完成对单节点computer节点部署
+    完成对单节点computer节点部署。
+    包含nova-compute,neutron 相关包安装
 
 ## 使用
 
 ### clone代码仓库
 > git clone {{ repo_url }}
+
+### 安装ansible
+#### 方式1：直接安装ansible
+    yum install ansible
+#### 方式2：虚拟环境安装ansible
+    # 安装python3-venv包
+    sudo apt install python3-venv
+    # 创建一个虚拟环境并激活
+    python3 -m venv /path/to/venv
+    # 更新pip
+    pip install -U pip
+    # 安装ansible
+    pip install 'ansible-core>=2.14,<2.16'
+
+    # 等待安装完成
+
+    # 运行命令查看ansible 详细信息
+    ansible --version
 
 ### 运行pre_work
 
